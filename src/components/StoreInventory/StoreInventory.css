@@ -1,0 +1,145 @@
+.store-inventory {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #f8fafc;
+}
+
+/* ── header ── */
+.store-inventory__header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #fff;
+  border-left: 4px solid #3b82f6;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+}
+
+.store-inventory__meta { flex: 1; min-width: 0; }
+
+.store-inventory__name {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.store-inventory__address {
+  font-size: 0.775rem;
+  color: #64748b;
+  margin-top: 0.1rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.store-inventory__close {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0.25rem;
+  flex-shrink: 0;
+}
+
+.store-inventory__close:hover { color: #475569; }
+
+/* ── category tabs ── */
+.store-inventory__tabs {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  background: #fff;
+  border-bottom: 1px solid #e2e8f0;
+  flex-shrink: 0;
+  -webkit-overflow-scrolling: touch;
+}
+
+.store-inventory__tabs::-webkit-scrollbar { display: none; }
+
+.si-tab {
+  padding: 0.55rem 0.875rem;
+  border: none;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: color 0.15s, border-color 0.15s;
+}
+
+.si-tab:hover { color: #1e293b; }
+
+.si-tab--active {
+  font-weight: 700;
+}
+
+/* ── products ── */
+.store-inventory__products {
+  flex: 1;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.si-product {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  background: #fff;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.1s;
+}
+
+.si-product:hover { background: #f8fafc; }
+
+.si-product__emoji {
+  font-size: 1.25rem;
+  width: 2rem;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.si-product__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.si-product__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.si-product__brand {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  margin-top: 0.05rem;
+}
+
+.si-product__right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.si-product__unit {
+  font-size: 0.72rem;
+  color: #94a3b8;
+}
+
+.si-product__price {
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: #16a34a;
+}

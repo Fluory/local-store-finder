@@ -1,0 +1,96 @@
+.scanner-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.scanner-modal {
+  background: #1e293b;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 420px;
+  overflow: hidden;
+  box-shadow: 0 24px 48px rgba(0, 0, 0, 0.5);
+}
+
+.scanner-modal__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem;
+  color: #fff;
+}
+
+.scanner-modal__header h2 {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.scanner-modal__close {
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 1rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s;
+}
+
+.scanner-modal__close:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* html5-qrcode renders inside this div */
+.scanner-modal__viewfinder {
+  width: 100%;
+  background: #000;
+  /* html5-qrcode sets its own height via JS; we give a min-height so it renders */
+  min-height: 280px;
+}
+
+/* Override some html5-qrcode internal styles */
+.scanner-modal__viewfinder > video {
+  width: 100% !important;
+  border-radius: 0 !important;
+}
+
+.scanner-modal__viewfinder > canvas {
+  display: none !important; /* hide internal debug canvas */
+}
+
+.scanner-modal__hint {
+  padding: 0.75rem 1.25rem 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  color: #94a3b8;
+}
+
+.scanner-modal__error {
+  padding: 1.5rem 1.25rem;
+  text-align: center;
+  color: #fca5a5;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  align-items: center;
+}
+
+.scanner-modal__btn {
+  padding: 0.5rem 1.25rem;
+  background: #3b82f6;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}

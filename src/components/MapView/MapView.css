@@ -1,6 +1,7 @@
 .map-container {
-  flex: 1 1 50%;
-  min-height: 220px;
+  flex: 0 0 45%;
+  min-height: 200px;
+  max-height: 55vh;
   position: relative;
 }
 

@@ -4,6 +4,6 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   optimizeDeps: {
-    include: ['opening_hours'],
+    include: ['opening_hours', 'html5-qrcode'],
   },
 })
