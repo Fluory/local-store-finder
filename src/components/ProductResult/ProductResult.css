@@ -78,26 +78,124 @@
 
 .product-result__close:hover { color: #475569; }
 
-/* ── subtitle ── */
+/* ── sections ── */
+.product-result__section {
+  border-bottom: 3px solid #f1f5f9;
+  padding-bottom: 0.25rem;
+}
+
 .product-result__subtitle {
-  padding: 0.7rem 1rem 0.4rem;
-  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem 0.4rem;
+  font-size: 0.72rem;
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
   color: #64748b;
 }
 
+.product-result__spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid #cbd5e1;
+  border-top-color: #3b82f6;
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.product-result__empty-sm {
+  padding: 0.4rem 1rem 0.75rem;
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* ── comparable products grid ── */
+.comp-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  padding: 0 1rem 0.75rem;
+}
+
+.comp-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s;
+}
+
+.comp-card:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+
+.comp-card__img-wrap {
+  width: 100%;
+  aspect-ratio: 1;
+  background: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.comp-card__img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 4px;
+}
+
+.comp-card__img-placeholder {
+  font-size: 1.75rem;
+  color: #cbd5e1;
+}
+
+.comp-card__body {
+  padding: 0.35rem 0.4rem 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.comp-card__name {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.comp-card__brand {
+  font-size: 0.65rem;
+  color: #3b82f6;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.comp-card__qty {
+  font-size: 0.62rem;
+  color: #94a3b8;
+}
+
+/* ── store cards keep their own block layout ── */
 .product-result__stores {
   display: flex;
   flex-direction: column;
   gap: 0;
-}
-
-.product-result__empty {
-  padding: 1rem;
-  color: #94a3b8;
-  font-size: 0.875rem;
 }
 
 /* ── store card ── */

@@ -38,6 +38,63 @@ function inferCategory(categoriesStr) {
   return null;
 }
 
+// Known German store-brand prefixes to strip when building a search term.
+// e.g. "Lidl Toastbrot" → "Toastbrot", "ja! Butter" → "Butter"
+const STORE_PREFIXES = [
+  'lidl', 'aldi', 'rewe', 'edeka', 'kaufland', 'penny', 'netto',
+  'ja!', 'ja ', 'gut & günstig', 'k-classic', 'k classic',
+  'pilos', 'milbona', 'alesto', 'milsani', 'brooklea', 'freeway',
+  'favorit', 'cien', 'w5', 'simply', 'belbake',
+];
+
+function extractSearchTerm(name) {
+  let term = name.trim();
+  const lower = term.toLowerCase();
+  for (const prefix of STORE_PREFIXES) {
+    if (lower.startsWith(prefix)) {
+      term = term.slice(prefix.length).trim();
+      break;
+    }
+  }
+  // Remove trailing/leading punctuation
+  return term.replace(/^[-–,]+|[-–,]+$/g, '').trim();
+}
+
+/**
+ * Search Open Food Facts for real comparable products sold in Germany.
+ * Strips store-brand prefixes so "Lidl Toast" → searches "Toast".
+ */
+export async function searchComparables(product, maxResults = 9) {
+  const term = extractSearchTerm(product.name);
+  if (!term || term.startsWith('Code:') || term.length < 2) return [];
+
+  const params = new URLSearchParams({
+    search_terms: term,
+    countries_tags: 'en:germany',
+    action: 'process',
+    json: '1',
+    page_size: String(maxResults),
+    sort_by: 'popularity_key',
+    fields: 'code,product_name,brands,image_front_small_url,quantity',
+  });
+
+  const res = await fetch(
+    `https://world.openfoodfacts.org/cgi/search.pl?${params.toString()}`
+  );
+  if (!res.ok) throw new Error(`OFacts search: HTTP ${res.status}`);
+  const { products = [] } = await res.json();
+
+  return products
+    .filter((p) => p.product_name && p.product_name.trim().length > 0)
+    .map((p) => ({
+      code: p.code || '',
+      name: p.product_name.trim(),
+      brand: p.brands ? p.brands.split(',')[0].trim() : '',
+      quantity: p.quantity || '',
+      imageUrl: p.image_front_small_url || null,
+    }));
+}
+
 export async function lookupBarcode(barcode) {
   const res = await fetch(`${BASE_URL}/${barcode}?fields=${FIELDS}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);

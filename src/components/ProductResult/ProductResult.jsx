@@ -1,8 +1,11 @@
+import { useEffect, useState } from 'react';
 import { CATEGORY_LABELS, getSimilarProducts } from '../../utils/mockInventory.js';
+import { searchComparables } from '../../utils/openFoodFacts.js';
 import { formatDistance } from '../../utils/distance.js';
 import { MARKER_COLORS } from '../../constants.js';
 import './ProductResult.css';
 
+// ── nearby store card (mock inventory) ───────────────────────────────────────
 function StoreSimilarCard({ store, rank, category }) {
   const similar = getSimilarProducts(store.name, category);
   const color = MARKER_COLORS[store.type] ?? '#64748b';
@@ -15,7 +18,6 @@ function StoreSimilarCard({ store, rank, category }) {
         <span className="pr-store-card__name">{store.name}</span>
         <span className="pr-store-card__dist">{formatDistance(store.distance)}</span>
       </div>
-
       {similar.length > 0 ? (
         <ul className="pr-store-card__products">
           {similar.map((p) => (
@@ -34,58 +36,106 @@ function StoreSimilarCard({ store, rank, category }) {
   );
 }
 
+// ── single comparable product card (from Open Food Facts) ────────────────────
+function ComparableCard({ item }) {
+  return (
+    <div className="comp-card">
+      <div className="comp-card__img-wrap">
+        {item.imageUrl ? (
+          <img src={item.imageUrl} alt={item.name} className="comp-card__img" loading="lazy" />
+        ) : (
+          <div className="comp-card__img-placeholder">🛒</div>
+        )}
+      </div>
+      <div className="comp-card__body">
+        <p className="comp-card__name">{item.name}</p>
+        {item.brand && <p className="comp-card__brand">{item.brand}</p>}
+        {item.quantity && <p className="comp-card__qty">{item.quantity}</p>}
+      </div>
+    </div>
+  );
+}
+
+// ── main component ────────────────────────────────────────────────────────────
 export default function ProductResult({ result, onClose, onStoreSelect }) {
+  const [comparables, setComparables] = useState([]);
+  const [loadingComparables, setLoadingComparables] = useState(false);
+
+  // Fetch real comparable products from Open Food Facts whenever result changes
+  useEffect(() => {
+    if (!result?.product) return;
+    let cancelled = false;
+
+    setComparables([]);
+    setLoadingComparables(true);
+
+    searchComparables(result.product)
+      .then((items) => { if (!cancelled) setComparables(items); })
+      .catch(() => {})
+      .finally(() => { if (!cancelled) setLoadingComparables(false); });
+
+    return () => { cancelled = true; };
+  }, [result]);
+
   if (!result) return null;
   const { product, nearestStores } = result;
 
   return (
     <div className="product-result">
-      {/* ── scanned product info ── */}
+
+      {/* ── scanned product header ── */}
       <div className="product-result__product">
         {product.imageUrl && (
-          <img
-            src={product.imageUrl}
-            alt={product.name}
-            className="product-result__img"
-            loading="lazy"
-          />
+          <img src={product.imageUrl} alt={product.name} className="product-result__img" loading="lazy" />
         )}
         <div className="product-result__info">
           <h3 className="product-result__name">{product.name}</h3>
-          {product.brand && <p className="product-result__brand">{product.brand}{product.quantity ? ` · ${product.quantity}` : ''}</p>}
-          {product.category && (
-            <span className="product-result__cat-badge">
-              {CATEGORY_LABELS[product.category] ?? product.category}
-            </span>
+          {product.brand && (
+            <p className="product-result__brand">
+              {product.brand}{product.quantity ? ` · ${product.quantity}` : ''}
+            </p>
           )}
-          {!product.category && (
-            <span className="product-result__cat-badge product-result__cat-badge--unknown">
-              Kategorie unbekannt
-            </span>
-          )}
+          {product.category
+            ? <span className="product-result__cat-badge">{CATEGORY_LABELS[product.category] ?? product.category}</span>
+            : <span className="product-result__cat-badge product-result__cat-badge--unknown">Kategorie unbekannt</span>
+          }
         </div>
-        <button className="product-result__close" onClick={onClose} aria-label="Ergebnis schließen">✕</button>
+        <button className="product-result__close" onClick={onClose} aria-label="Schließen">✕</button>
+      </div>
+
+      {/* ── comparable products from the internet ── */}
+      <div className="product-result__section">
+        <h4 className="product-result__subtitle">
+          Vergleichbare Artikel aus dem Internet
+          {loadingComparables && <span className="product-result__spinner" />}
+        </h4>
+
+        {!loadingComparables && comparables.length === 0 && (
+          <p className="product-result__empty-sm">Keine Vergleichsartikel gefunden.</p>
+        )}
+
+        {comparables.length > 0 && (
+          <div className="comp-grid">
+            {comparables.map((item) => (
+              <ComparableCard key={item.code || item.name} item={item} />
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ── nearest stores ── */}
-      <h4 className="product-result__subtitle">
-        3 nächste Supermärkte mit ähnlichen Artikeln
-      </h4>
-
-      <div className="product-result__stores">
+      <div className="product-result__section">
+        <h4 className="product-result__subtitle">3 nächste Supermärkte in der Nähe</h4>
         {nearestStores.length === 0 && (
-          <p className="product-result__empty">Keine Supermärkte in der Nähe gefunden.</p>
+          <p className="product-result__empty-sm">Keine Supermärkte in der Nähe gefunden.</p>
         )}
         {nearestStores.map((store, i) => (
-          <div
-            key={store.id}
-            onClick={() => onStoreSelect(store.id)}
-            style={{ cursor: 'pointer' }}
-          >
+          <div key={store.id} onClick={() => onStoreSelect(store.id)} style={{ cursor: 'pointer' }}>
             <StoreSimilarCard store={store} rank={i + 1} category={product.category} />
           </div>
         ))}
       </div>
+
     </div>
   );
 }
