@@ -1,0 +1,78 @@
+/* === Reset & Base === */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: #1e293b;
+}
+
+/* === App shell: full viewport, vertical flex === */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100dvh; /* dynamic viewport height — accounts for mobile browser chrome */
+}
+
+/* === Header === */
+.app-header {
+  flex-shrink: 0;
+  background: #1e293b;
+  color: #fff;
+  padding: 0.625rem 1rem;
+}
+
+.app-header__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.app-header__title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.app-header__icon {
+  font-size: 1rem;
+}
+
+.app-header__count {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  font-weight: 500;
+}
+
+/* === Main layout: vertical on mobile, horizontal on desktop === */
+.app-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0; /* critical: allows flex children to shrink below their content size */
+}
+
+/* === Desktop: side-by-side === */
+@media (min-width: 768px) {
+  .app-main {
+    flex-direction: row;
+  }
+
+  .map-container {
+    flex: 1 1 60%;
+  }
+
+  .store-list {
+    flex: 0 0 380px;
+    border-left: 1px solid #e2e8f0;
+    border-top: none;
+  }
+}
