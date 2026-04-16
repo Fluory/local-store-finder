@@ -60,18 +60,26 @@ function ComparableCard({ item }) {
 export default function ProductResult({ result, onClose, onStoreSelect }) {
   const [comparables, setComparables] = useState([]);
   const [loadingComparables, setLoadingComparables] = useState(false);
+  const [comparablesError, setComparablesError] = useState(null);
 
-  // Fetch real comparable products from Open Food Facts whenever result changes
   useEffect(() => {
     if (!result?.product) return;
     let cancelled = false;
 
     setComparables([]);
+    setComparablesError(null);
     setLoadingComparables(true);
 
     searchComparables(result.product)
-      .then((items) => { if (!cancelled) setComparables(items); })
-      .catch(() => {})
+      .then((items) => {
+        if (cancelled) return;
+        setComparables(items);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        console.error('searchComparables failed:', err);
+        setComparablesError('Vergleich konnte nicht geladen werden.');
+      })
       .finally(() => { if (!cancelled) setLoadingComparables(false); });
 
     return () => { cancelled = true; };
@@ -110,7 +118,10 @@ export default function ProductResult({ result, onClose, onStoreSelect }) {
           {loadingComparables && <span className="product-result__spinner" />}
         </h4>
 
-        {!loadingComparables && comparables.length === 0 && (
+        {!loadingComparables && comparablesError && (
+          <p className="product-result__empty-sm product-result__empty-sm--error">{comparablesError}</p>
+        )}
+        {!loadingComparables && !comparablesError && comparables.length === 0 && (
           <p className="product-result__empty-sm">Keine Vergleichsartikel gefunden.</p>
         )}
 

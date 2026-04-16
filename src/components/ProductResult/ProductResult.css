@@ -115,6 +115,10 @@
   font-size: 0.8rem;
 }
 
+.product-result__empty-sm--error {
+  color: #dc2626;
+}
+
 /* ── comparable products grid ── */
 .comp-grid {
   display: grid;

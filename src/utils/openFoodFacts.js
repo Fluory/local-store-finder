@@ -60,32 +60,9 @@ function extractSearchTerm(name) {
   return term.replace(/^[-–,]+|[-–,]+$/g, '').trim();
 }
 
-/**
- * Search Open Food Facts for real comparable products sold in Germany.
- * Strips store-brand prefixes so "Lidl Toast" → searches "Toast".
- */
-export async function searchComparables(product, maxResults = 9) {
-  const term = extractSearchTerm(product.name);
-  if (!term || term.startsWith('Code:') || term.length < 2) return [];
-
-  const params = new URLSearchParams({
-    search_terms: term,
-    countries_tags: 'en:germany',
-    action: 'process',
-    json: '1',
-    page_size: String(maxResults),
-    sort_by: 'popularity_key',
-    fields: 'code,product_name,brands,image_front_small_url,quantity',
-  });
-
-  const res = await fetch(
-    `https://world.openfoodfacts.org/cgi/search.pl?${params.toString()}`
-  );
-  if (!res.ok) throw new Error(`OFacts search: HTTP ${res.status}`);
-  const { products = [] } = await res.json();
-
+function normalizeProducts(products) {
   return products
-    .filter((p) => p.product_name && p.product_name.trim().length > 0)
+    .filter((p) => p.product_name?.trim())
     .map((p) => ({
       code: p.code || '',
       name: p.product_name.trim(),
@@ -93,6 +70,75 @@ export async function searchComparables(product, maxResults = 9) {
       quantity: p.quantity || '',
       imageUrl: p.image_front_small_url || null,
     }));
+}
+
+const SEARCH_FIELDS = 'code,product_name,brands,image_front_small_url,quantity';
+
+/**
+ * Search Open Food Facts for comparable products.
+ * Uses two strategies:
+ *   1. Name search via v2 API (no country filter – global, sorted by popularity)
+ *   2. Category fallback via OFacts category tag if name search returns < 3 results
+ *
+ * The old /cgi/search.pl endpoint did not honour countries_tags → always 0 results.
+ */
+export async function searchComparables(product, maxResults = 9) {
+  const term = extractSearchTerm(product.name);
+  if (!term || term.startsWith('Code:') || term.length < 2) return [];
+
+  // ── Strategy 1: v2 name search (global, popular first) ──────────────────
+  const params = new URLSearchParams({
+    search_terms: term,
+    page_size: String(maxResults),
+    sort_by: 'popularity_key',
+    fields: SEARCH_FIELDS,
+  });
+
+  const res = await fetch(
+    `https://world.openfoodfacts.org/api/v2/search?${params.toString()}`
+  );
+  if (!res.ok) throw new Error(`OFacts v2 search: HTTP ${res.status}`);
+  const data = await res.json();
+  const byName = normalizeProducts(data.products || []);
+
+  if (byName.length >= 3) return byName.slice(0, maxResults);
+
+  // ── Strategy 2: category-tag fallback ────────────────────────────────────
+  // OFacts category tag for our internal category key (best-effort mapping)
+  const CATEGORY_TAGS = {
+    dairy:     'en:dairies',
+    bread:     'en:breads',
+    produce:   'en:fruits-and-vegetables',
+    meat:      'en:meats',
+    beverages: 'en:beverages',
+    frozen:    'en:frozen-foods',
+    snacks:    'en:snacks',
+    household: 'en:cleaning-products',
+  };
+  const tag = product.category ? CATEGORY_TAGS[product.category] : null;
+  if (!tag) return byName;
+
+  const catParams = new URLSearchParams({
+    categories_tags: tag,
+    page_size: String(maxResults - byName.length),
+    sort_by: 'popularity_key',
+    fields: SEARCH_FIELDS,
+  });
+  const catRes = await fetch(
+    `https://world.openfoodfacts.org/api/v2/search?${catParams.toString()}`
+  );
+  if (!catRes.ok) return byName;
+
+  const catData = await catRes.json();
+  const byCat = normalizeProducts(catData.products || []);
+
+  // Merge and deduplicate by product code
+  const seen = new Set(byName.map((p) => p.code || p.name));
+  const merged = [
+    ...byName,
+    ...byCat.filter((p) => !seen.has(p.code || p.name)),
+  ];
+  return merged.slice(0, maxResults);
 }
 
 export async function lookupBarcode(barcode) {
