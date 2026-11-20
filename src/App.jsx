@@ -132,11 +132,15 @@ export default function App() {
           <h1 className="app-header__title">
             <span aria-hidden="true">📍</span> LocalStoreFinder
           </h1>
-          {stores.length > 0 && (
-            <span className="app-header__count">
-              {filteredStores.length} / {stores.length}
-            </span>
-          )}
+          <div className="app-header__meta">
+            {stores.length > 0 && (
+              <span className="app-header__count">
+                {filteredStores.length} / {stores.length}
+              </span>
+            )}
+            <a className="app-header__link" href="/impressum">Impressum</a>
+            <a className="app-header__link" href="/datenschutz">Datenschutz</a>
+          </div>
         </div>
       </header>
 

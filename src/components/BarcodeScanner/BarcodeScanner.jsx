@@ -13,6 +13,9 @@ export default function BarcodeScanner({ onScan, onClose }) {
   useEffect(() => {
     const scanner = new Html5Qrcode(CONTAINER_ID, { verbose: false });
     scannerRef.current = scanner;
+    // Closed before the camera finished starting? Then stop it as soon as it
+    // runs, otherwise the camera would stay on after the dialog is gone.
+    let unmounted = false;
 
     scanner
       .start(
@@ -27,10 +30,15 @@ export default function BarcodeScanner({ onScan, onClose }) {
         () => {} // per-frame parse error — not fatal
       )
       .then(() => {
+        if (unmounted) {
+          scanner.stop().catch(() => {});
+          return;
+        }
         startedRef.current = true;
         setHint('Halte die Kamera auf den Barcode des Artikels');
       })
       .catch((err) => {
+        if (unmounted) return;
         const msg = String(err).toLowerCase();
         if (msg.includes('permission') || msg.includes('denied')) {
           setError('Kamerazugriff verweigert. Bitte erlaube den Kamerazugriff in den Browsereinstellungen.');
@@ -40,6 +48,7 @@ export default function BarcodeScanner({ onScan, onClose }) {
       });
 
     return () => {
+      unmounted = true;
       if (startedRef.current) {
         startedRef.current = false;
         scanner.stop().catch(() => {});

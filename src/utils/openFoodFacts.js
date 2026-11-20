@@ -142,6 +142,8 @@ export async function searchComparables(product, maxResults = 9) {
 }
 
 export async function lookupBarcode(barcode) {
+  // A scanned code is outside input: only digits form a product barcode.
+  if (!/^\d{6,14}$/.test(barcode)) return null;
   const res = await fetch(`${BASE_URL}/${barcode}?fields=${FIELDS}`);
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
   const data = await res.json();

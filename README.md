@@ -52,6 +52,9 @@ npm run build    # statischer Build nach dist/
 ```
 
 Standort und Kamera funktionieren im Browser nur über `localhost` oder HTTPS.
+`npm run preview` liefert den Build mit denselben Sicherheits-Headern aus wie Vercel (`vercel.json`),
+so lässt sich die Content-Security-Policy lokal prüfen. Impressum und Datenschutz liegen unter
+`/impressum` und `/datenschutz`.
 
 ## Was als Nächstes käme
 

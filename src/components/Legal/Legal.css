@@ -1,0 +1,9 @@
+.legal { min-height: 100dvh; background: #fff; color: #1e293b; overflow-y: auto; }
+.legal__nav { display: flex; flex-wrap: wrap; gap: 1rem; padding: 0.75rem 1rem; background: #1e293b; }
+.legal__nav a { color: #fff; font-size: 0.9rem; }
+.legal__body { max-width: 42rem; margin: 0 auto; padding: 1rem 1rem 3rem; line-height: 1.55; font-size: 0.95rem; }
+.legal__body h1 { font-size: 1.4rem; margin: 0.5rem 0 1rem; }
+.legal__body h2 { font-size: 1.02rem; margin: 1.4rem 0 0.4rem; }
+.legal__body p { margin: 0 0 0.75rem; overflow-wrap: anywhere; }
+.legal__body a { color: #2563eb; }
+.legal__note { color: #64748b; font-size: 0.85rem; margin-top: 2rem; }
